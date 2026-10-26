@@ -1,0 +1,24 @@
+# Analysis environment (CPU): smoothed PCA, FGW anchor specs, series metrics, areal axes, atlas, development, figures.
+# Exact reproduction of the stored numbers needs this numerical stack (PCA / SVD results depend in the last digits on the
+# BLAS build and the number of threads; the step scripts set 8 BLAS threads).
+name: ottr-analysis
+channels: [conda-forge]
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      - numpy==1.26.4
+      - scipy==1.15.3
+      - pandas==2.3.3
+      - scikit-learn==1.7.2
+      - POT==0.9.5
+      - scanpy==1.10.2
+      - anndata==0.11.4
+      - umap-learn==0.5.12
+      - harmonypy==2.1.0
+      - igraph==1.0.0
+      - leidenalg==0.12.0
+      - matplotlib==3.10.9
+      - h5py==3.16.0
+      - PyYAML==6.0.3
+      - pytest

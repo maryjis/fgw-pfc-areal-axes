@@ -1,0 +1,5 @@
+# Reference workspace for the level-1 reproduction tests: the new code is run on the STORED inputs and embeddings of the previous
+# project (symlinked by scripts/tools/reference_workspace.py) and its outputs are compared with the stored results (tests/).
+paths:
+  work: work_ref
+  results: work_ref/results

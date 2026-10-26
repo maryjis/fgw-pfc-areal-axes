@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ottr"
+version = "0.1.0"
+description = "FGW column-anchor alignment (INSPIRE extension), smoothed PCA, areal-axis model, metrics and visualisations"
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"ottr.viz" = ["templates/*.html"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = ["gpu: needs a GPU", "reference: needs the reference results of the previous project", "slow: takes minutes"]

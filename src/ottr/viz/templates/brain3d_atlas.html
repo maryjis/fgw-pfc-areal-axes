@@ -1,0 +1,158 @@
+<title>Atlas Frontal PCs vs FGW Axes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:wght@600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* layout: controls on the left; atlas brain and our-axis brain side by side; stacks on phones */
+:root {
+  --bg: #f6f7f9; --panel: #ffffff; --fg: #18212f; --muted: #5b6577; --line: #dde1e8; --accent: #2b5fb4; --chip: #eef2f8;
+  --lo: #2166ac; --mid: #f2efea; --hi: #b2182b; --none: #c9ccd2;
+  --display: 'Source Serif 4', Georgia, serif; --body: 'IBM Plex Sans', Arial, sans-serif; --mono: 'IBM Plex Mono', 'Courier New', monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12161d; --panel: #1a2029; --fg: #e6e9ef; --muted: #9aa4b5; --line: #2c3442; --accent: #7aa7ec; --chip: #222a36; --mid: #3a3d44; --none: #4a4f58; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #12161d; --panel: #1a2029; --fg: #e6e9ef; --muted: #9aa4b5; --line: #2c3442; --accent: #7aa7ec; --chip: #222a36; --mid: #3a3d44; --none: #4a4f58; color-scheme: dark }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; }
+.app { display: grid; grid-template-columns: 360px minmax(0, 1fr); min-height: 100%; }
+.rail { background: var(--panel); border-right: 1px solid var(--line); padding-block: 20px; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: 18px;
+  display: flex; flex-direction: column; gap: 15px; min-width: 0; overflow-y: auto; max-height: 100vh; }
+h1 { font-family: var(--display); font-weight: 600; font-size: 23px; line-height: 1.15; margin: 0; text-wrap: balance; }
+.sub, .note { color: var(--muted); font-size: 12.5px; line-height: 1.45; margin: 0; }
+.group { display: flex; flex-direction: column; gap: 7px; }
+.label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font: inherit; font-size: 13px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--chip); color: var(--fg); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--panel); font-weight: 600; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+select { font: inherit; font-size: 13px; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--chip); color: var(--fg); width: 100%; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.card { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.card .name { font-family: var(--display); font-size: 17px; font-weight: 600; }
+.rho { font-family: var(--mono); font-size: 26px; font-weight: 500; font-variant-numeric: tabular-nums; }
+table.m { border-collapse: collapse; font-size: 12.5px; width: 100%; font-variant-numeric: tabular-nums; }
+table.m th, table.m td { text-align: left; padding: 3px 4px; border-bottom: 1px solid var(--line); }
+table.m td.n { font-family: var(--mono); text-align: right; }
+table.m tr.sel { background: var(--chip); font-weight: 600; }
+.stage { display: grid; grid-template-columns: 1fr 1fr; min-width: 0; }
+.pane { position: relative; min-width: 0; min-height: 560px; border-left: 1px solid var(--line); }
+.pane .plot { position: absolute; inset: 0; }
+.ptitle { position: absolute; top: 12px; left: 16px; right: 16px; z-index: 2; pointer-events: none; display: flex; flex-direction: column; gap: 2px; }
+.ptitle b { font-family: var(--display); font-size: 19px; }
+.ptitle span { font-size: 12.5px; color: var(--muted); }
+.scale { position: absolute; left: 16px; right: 16px; bottom: 14px; z-index: 2; pointer-events: none; }
+.bar { height: 10px; border-radius: 3px; background: linear-gradient(90deg, var(--lo), var(--mid), var(--hi)); }
+.ticks { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); }
+@media (max-width: 1000px) {
+  .app { grid-template-columns: 1fr; } .stage { grid-template-columns: 1fr; order: -1; }
+  .rail { border-right: 0; max-height: none; padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); }
+  .pane { min-height: 60vh; border-left: 0; border-bottom: 1px solid var(--line); }
+}
+</style>
+<div class="app">
+  <aside class="rail">
+    <div class="group">
+      <h1>Atlas frontal PCs and our FGW axes</h1>
+      <p class="sub">Left: the 10 PCs of the frontal PCA of the Huang et al. 2026 segment atlas, mean per atlas region. Right: our axis that matches it best (Spearman over the atlas flat-map segments T408–T428), mean per region over the adult series T402–T428. BMA 2.0 meshes, right hemisphere.</p>
+    </div>
+    <div class="group"><span class="label">Atlas frontal PC</span><div class="seg" id="fpc"></div></div>
+    <div class="group"><span class="label">Model</span><div class="seg" id="model"></div></div>
+    <div class="group"><span class="label">Our axis (sorted by |ρ| with this PC)</span><select id="axis" aria-label="Our axis"></select></div>
+    <div class="card">
+      <div class="name" id="fname"></div>
+      <div class="sub" id="fsub"></div>
+      <div class="rho" id="rho"></div>
+      <div class="sub" id="asub"></div>
+    </div>
+    <div class="group"><span class="label">Best match in each model</span><table class="m" id="best"></table></div>
+    <div class="group"><span class="label">View</span><div class="seg" id="view"></div></div>
+    <label class="check"><input type="checkbox" id="labels" checked> Region names</label>
+    <p class="note">Our axis is shown with the sign that matches the atlas PC (flipped when ρ &lt; 0). Each brain has its own symmetric colour scale (95th percentile of |value|). Grey: region not in that data set (our series covers 30 PFC regions; the atlas also has Pir, Gu, OPro, A24d and others). Rotating one brain rotates the other.</p>
+  </aside>
+  <main class="stage">
+    <div class="pane"><div class="ptitle"><b id="tl"></b><span id="sl"></span></div><div class="plot" id="pA"></div><div class="loading" id="loading">Loading the brains…</div>
+      <div class="scale"><div class="bar"></div><div class="ticks"><span id="loA"></span><span>0</span><span id="hiA"></span></div></div></div>
+    <div class="pane"><div class="ptitle"><b id="tr"></b><span id="sr"></span></div><div class="plot" id="pB"></div>
+      <div class="scale"><div class="bar"></div><div class="ticks"><span id="loB"></span><span>0</span><span id="hiB"></span></div></div></div>
+  </main>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.35.0/plotly.min.js"></script>
+<script type="application/json" id="data">__DATA__</script>
+<script>
+(() => {
+  if (!window.Plotly) { document.getElementById('loading').textContent = 'The 3D library did not load. Reload the page.'; return; }
+  const D = JSON.parse(document.getElementById('data').textContent);
+  const REG = Object.keys(D.regions);
+  const VIEWS = { Lateral: {x: 2.1, y: 0.35, z: 0.45}, Medial: {x: -2.1, y: 0.35, z: 0.45}, Ventral: {x: 0.3, y: 0.4, z: -2.2}, Frontal: {x: 0.6, y: 2.1, z: 0.4}, Dorsal: {x: 0.2, y: 0.3, z: 2.2} };
+  const st = { f: 2, m: D.model_order[0], axis: null, view: 'Lateral', labels: true };
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const hex = h => { h = h.replace('#', ''); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); };
+  const mix = (a, b, t) => a.map((x, i) => Math.round(x + (b[i] - x) * t));
+  const colour = (v, lim) => { const t = Math.max(-1, Math.min(1, v / lim)); const c = t < 0 ? mix(hex(css('--mid')), hex(css('--lo')), -t) : mix(hex(css('--mid')), hex(css('--hi')), t); return `rgb(${c})`; };
+  const MD = () => D.models[st.m];
+  const sorted = () => [...MD().axes].sort((a, b) => Math.abs(b.rho[st.f - 1]) - Math.abs(a.rho[st.f - 1]));
+  function buttons(id, items, key, cb) {
+    const el = document.getElementById(id); el.innerHTML = '';
+    items.forEach(([val, txt]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = txt; b.id = `${id}-${String(val).replace(/\W/g, '')}`;
+      b.setAttribute('aria-pressed', String(st[key] === val)); b.onclick = () => { st[key] = val; [...el.children].forEach(c => c.setAttribute('aria-pressed', String(c === b))); cb(); }; el.appendChild(b); });
+  }
+  function fillAxes() {
+    const sel = document.getElementById('axis'); const ax = sorted(); st.axis = ax[0].id;
+    sel.innerHTML = ax.map(a => `<option value="${a.id}">ρ ${a.rho[st.f - 1] >= 0 ? '+' : '−'}${Math.abs(a.rho[st.f - 1]).toFixed(2)} · ${a.analysis} ${a.k}: ${a.reading}</option>`).join('');
+    sel.value = st.axis;
+  }
+  buttons('fpc', D.fpcs.map(f => [f.k, `${f.k}`]), 'f', () => { fillAxes(); paint(); });
+  buttons('model', D.model_order.map(m => [m, D.models[m].label]), 'm', () => { fillAxes(); paint(); });
+  buttons('view', Object.keys(VIEWS).map(v => [v, v]), 'view', () => { ['pA', 'pB'].forEach(p => Plotly.relayout(p, { 'scene.camera.eye': VIEWS[st.view] })); });
+  document.getElementById('axis').onchange = e => { st.axis = e.target.value; paint(); };
+  document.getElementById('labels').onchange = e => { st.labels = e.target.checked; paint(); };
+  function traces() {
+    const t = [], sh = D.shell;
+    t.push({ type: 'mesh3d', x: sh.x, y: sh.y, z: sh.z, i: sh.i, j: sh.j, k: sh.k, color: css('--none'), opacity: 0.12, hoverinfo: 'skip', lighting: { ambient: 0.7, diffuse: 0.5, specular: 0.05 } });
+    REG.forEach(r => { const m = D.regions[r];
+      t.push({ type: 'mesh3d', x: m.x, y: m.y, z: m.z, i: m.i, j: m.j, k: m.k, color: css('--none'), opacity: 1, lighting: { ambient: 0.55, diffuse: 0.75, specular: 0.25, roughness: 0.6 },
+        lightposition: { x: 100, y: 200, z: 300 }, hovertemplate: `<b>${r}</b> · ${D.zone[r] || ''}<br>%{text}<extra></extra>`, text: Array(m.x.length).fill('') }); });
+    t.push({ type: 'scatter3d', mode: 'text', x: REG.map(r => D.regions[r].centroid[0] + 1.2), y: REG.map(r => D.regions[r].centroid[1]), z: REG.map(r => D.regions[r].centroid[2]),
+      text: REG, textfont: { family: 'IBM Plex Sans, Arial', size: 10, color: css('--fg') }, hoverinfo: 'skip' });
+    t.push({ type: 'scatter3d', mode: 'lines', x: [6, 6], y: [-14, 12.4], z: [-11.5, -11.5], line: { color: css('--fg'), width: 6 }, hoverinfo: 'skip' });
+    t.push({ type: 'cone', x: [6], y: [14], z: [-11.5], u: [0], v: [1], w: [0], anchor: 'tip', sizemode: 'absolute', sizeref: 2.2, showscale: false, colorscale: [[0, css('--fg')], [1, css('--fg')]], hoverinfo: 'skip' });
+    t.push({ type: 'scatter3d', mode: 'text', x: [6, 6], y: [-15.5, 15.8], z: [-11.5, -11.5], text: ['P', 'A'], textfont: { size: 14, color: css('--fg') }, hoverinfo: 'skip' });
+    return t;
+  }
+  const axis = { visible: false, showgrid: false, zeroline: false, showbackground: false };
+  const layout = () => ({ margin: { l: 0, r: 0, t: 0, b: 0 }, paper_bgcolor: 'rgba(0,0,0,0)', showlegend: false,
+    scene: { xaxis: axis, yaxis: axis, zaxis: axis, aspectmode: 'data', camera: { eye: VIEWS[st.view], up: { x: 0, y: 0, z: 1 } }, bgcolor: 'rgba(0,0,0,0)' } });
+  const lim = v => { const a = Object.values(v).map(Math.abs).sort((p, q) => p - q); return a[Math.floor(0.95 * (a.length - 1))] || 1; };
+  function apply(div, v, what) {
+    const L = lim(v); const colors = REG.map(r => v[r] == null ? css('--none') : colour(v[r], L));
+    const texts = REG.map(r => Array(D.regions[r].x.length).fill(v[r] == null ? 'no data' : `${what}: ${v[r].toFixed(2)}`));
+    Plotly.restyle(div, { color: colors, text: texts }, REG.map((_, i) => i + 1)); Plotly.restyle(div, { visible: st.labels }, [REG.length + 1]); return L;
+  }
+  function paint() {
+    const f = D.fpcs[st.f - 1], a = MD().axes.find(x => x.id === st.axis), rho = a.rho[st.f - 1], sg = rho < 0 ? -1 : 1;
+    const LA = apply('pA', D.atlas[st.f], `fPC${st.f}`);
+    const vb = Object.fromEntries(Object.entries(a.values).map(([r, x]) => [r, sg * x])); const LB = apply('pB', vb, `${a.analysis} ${a.k}${sg < 0 ? ' (sign flipped)' : ''}`);
+    document.getElementById('tl').textContent = `Atlas fPC${f.k}: ${f.name}`; document.getElementById('sl').textContent = `${(f.share * 100).toFixed(1)}% of the frontal variance · atlas regions`;
+    document.getElementById('tr').textContent = `${MD().label} · ${a.analysis} ${a.k}`; document.getElementById('sr').textContent = `${a.reading} · ${(a.share * 100).toFixed(0)}% of its analysis · our regions${sg < 0 ? ' · sign flipped' : ''}`;
+    document.getElementById('fname').textContent = `fPC${f.k} ↔ ${a.analysis} ${a.k}`;
+    document.getElementById('fsub').textContent = `${f.name} ↔ ${a.reading}`;
+    document.getElementById('rho').textContent = `ρ ${rho >= 0 ? '+' : '−'}${Math.abs(rho).toFixed(2)}`;
+    document.getElementById('asub').textContent = 'Spearman over the atlas flat-map segments T408–T428';
+    document.getElementById('loA').textContent = (-LA).toFixed(1); document.getElementById('hiA').textContent = '+' + LA.toFixed(1);
+    document.getElementById('loB').textContent = (-LB).toFixed(2); document.getElementById('hiB').textContent = '+' + LB.toFixed(2);
+    document.getElementById('best').innerHTML = '<tr><th>model</th><th>best axis</th><th style="text-align:right">ρ</th></tr>' + D.model_order.map(m => {
+      const b = [...D.models[m].axes].sort((p, q) => Math.abs(q.rho[st.f - 1]) - Math.abs(p.rho[st.f - 1]))[0], r = b.rho[st.f - 1];
+      return `<tr class="${m === st.m ? 'sel' : ''}"><td>${D.models[m].label}</td><td>${b.analysis} ${b.k}</td><td class="n">${r >= 0 ? '+' : '−'}${Math.abs(r).toFixed(2)}</td></tr>`; }).join('');
+  }
+  fillAxes();
+  Promise.all(['pA', 'pB'].map(p => Plotly.newPlot(p, traces(), layout(), { displaylogo: false, responsive: true, modeBarButtonsToRemove: ['toImage'] }))).then(() => {
+    document.getElementById('loading').hidden = true; paint();
+    let busy = false;
+    const sync = (from, to) => document.getElementById(from).on('plotly_relayout', e => { if (busy || !e['scene.camera']) return; busy = true;
+      Plotly.relayout(to, { 'scene.camera': e['scene.camera'] }).then(() => { busy = false; }); });
+    sync('pA', 'pB'); sync('pB', 'pA');
+  }).catch(e => { document.getElementById('loading').textContent = '3D view failed: ' + e.message; });
+  try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', paint); } catch (e) {}
+})();
+</script>

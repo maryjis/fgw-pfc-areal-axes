@@ -1,0 +1,42 @@
+# Paths and run settings of the pipeline. Relative paths are resolved against the repository root.
+# Override any key with a second YAML file:  OTTR_CONFIG=configs/my.yaml  (merged on top of this one).
+
+paths:
+  # ---- external inputs (read only) ----
+  raw_adult: /workspace/data_adults                        # <T>_b100_anndata.h5ad: adult serial sections, bin100, with obs.layer / obs.region
+  raw_dev: /workspace/b100_filtered/v1_250728              # <sample>_<stage>_PFC_Sub-CTX_b100_filtered.h5ad: P0, P32, 3M, 7M
+  dev_annotation: /workspace/meta/data/annotation/v2_251209   # <sample>_b100_anno.csv: manual_layer, area, pseudoaxis of the young brains
+  cdepth_sa: /workspace/meta/data/cdepth_sa                # <sample>_b100_cdepth-sa.csv: sa_loess, depth of the young brains
+  sa_model: /workspace/SA_index/02_selected_gene_sa_index/data/Adult   # frozen adult SA classifier (09_model.pkl, 08_calibration.json)
+  svg_genes: data/adult5_svg_genes.txt                     # 2 000 spatially variable genes (Moran's I, adult5), the model's gene set
+  atlas_segments: /workspace/Gene_modules/benchmark_alignment_2026_10/results/segments   # atlas (Huang et al. 2026) exported from
+                                                         # Segment_genes_marmoset.rds by scripts/segments_export_data.R: atlas_data_hvg5000.f32
+                                                         # (+ _genes.txt, _segments.txt), segments_meta.csv, segments_pca.csv
+  atlas_mask: /workspace/Gene_modules/benchmark_alignment_2026_10/results/flatmap/mask_T408_T428.csv.gz   # bin50 segment mask of T408-T428
+  meshes: /workspace/marmoset_3d/web/public/data           # Brain/MINDS 3D atlas meshes (meshes.json, regions.json, *.bin)
+  # ---- working directory (generated, git-ignored) ----
+  work: work                                               # inputs/, runs/, embeddings/, cache/ live here
+  # ---- results ----
+  results: results
+  # ---- previous project (reference results for the reproduction tests; may be absent) ----
+  reference: /workspace/Gene_modules/benchmark_alignment_2026_10
+
+series:
+  name: pfcserL                                            # serial adult PFC series, Laplace-streamline columns
+  sections: [T402, T403, T404, T405, T406, T407, T408, T409, T410, T411, T412, T413, T414, T415, T416, T417, T418, T419,
+             T420, T421, T422, T423, T424, T425, T426, T427, T428]
+
+development:                                               # dataset name -> stage in the raw file names
+  devP0: P0
+  devP32: P32
+  dev3M: 3M
+  dev7M: 7M
+
+python:
+  train: /opt/conda/envs/inspire/bin/python                # torch + POT + scanpy (GPU)
+  analysis: /workspace/Gene_modules/benchmark_alignment_2026_10/envs/bench_pyg/bin/python   # numpy / scikit-learn / umap / harmonypy / matplotlib (run with 8 BLAS threads)
+
+gpu:
+  ids: [0, 1, 2, 3]
+  per_gpu: 1
+  min_free_mb: 22000            # one FGW model needs ~20 GB

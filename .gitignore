@@ -1,0 +1,10 @@
+# generated data (rebuild with scripts/run_all.sh; see README "What is in git")
+work/
+work_ref/
+logs/
+results/models/
+results/3d_model/*.html
+# python
+__pycache__/
+*.egg-info/
+.pytest_cache/

@@ -1,0 +1,231 @@
+<title>PFC Axes Through Development</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:wght@600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* layout: controls and age trend on the left, brain in the middle, axis genes on the right; stacks on phones */
+:root {
+  --bg: #f6f7f9; --panel: #ffffff; --fg: #18212f; --muted: #5b6577; --line: #dde1e8; --accent: #2b5fb4; --chip: #eef2f8;
+  --lo: #2166ac; --mid: #f2efea; --hi: #b2182b; --none: #c9ccd2; --pos: #b2182b; --neg: #2166ac;
+  --display: 'Source Serif 4', Georgia, serif; --body: 'IBM Plex Sans', Arial, sans-serif; --mono: 'IBM Plex Mono', 'Courier New', monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12161d; --panel: #1a2029; --fg: #e6e9ef; --muted: #9aa4b5; --line: #2c3442; --accent: #7aa7ec; --chip: #222a36;
+  --mid: #3a3d44; --none: #4a4f58; --pos: #e46a6a; --neg: #6ea6e8; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #12161d; --panel: #1a2029; --fg: #e6e9ef; --muted: #9aa4b5; --line: #2c3442; --accent: #7aa7ec; --chip: #222a36;
+  --mid: #3a3d44; --none: #4a4f58; --pos: #e46a6a; --neg: #6ea6e8; color-scheme: dark }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; }
+.app { display: grid; grid-template-columns: 330px minmax(0, 1fr) 340px; min-height: 100%; }
+.rail { background: var(--panel); padding-block: 20px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.left { border-right: 1px solid var(--line); padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: 18px; }
+.right { border-left: 1px solid var(--line); padding-right: max(18px, env(safe-area-inset-right, 0px)); padding-left: 18px; overflow-y: auto; max-height: 100vh; }
+h1 { font-family: var(--display); font-weight: 600; font-size: 23px; line-height: 1.15; margin: 0; text-wrap: balance; }
+.sub, .note { color: var(--muted); font-size: 12.5px; line-height: 1.45; margin: 0; }
+.group { display: flex; flex-direction: column; gap: 7px; }
+.label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button, .play { font: inherit; font-size: 13px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--chip); color: var(--fg); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--panel); font-weight: 600; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.reading { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 7px; }
+.reading .name { font-family: var(--display); font-size: 18px; font-weight: 600; }
+.bar { height: 12px; border-radius: 3px; background: linear-gradient(90deg, var(--lo), var(--mid), var(--hi)); }
+.ticks { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.trend svg { width: 100%; height: auto; display: block; }
+.stage { position: relative; min-width: 0; min-height: 560px; }
+#plot { position: absolute; inset: 0; }
+.loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); }
+.agebadge { position: absolute; top: 14px; right: 18px; font-family: var(--display); font-size: 34px; font-weight: 600; color: var(--fg); pointer-events: none; }
+.genes { display: flex; flex-direction: column; gap: 4px; }
+.genes h3 { font-size: 13px; margin: 8px 0 2px; letter-spacing: 0.05em; text-transform: uppercase; }
+.genes h3.p { color: var(--pos); } .genes h3.n { color: var(--neg); }
+.g { display: grid; grid-template-columns: 78px 1fr 44px; gap: 8px; align-items: center; font-size: 13px; }
+.g .nm { font-family: var(--mono); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.g .rho { font-family: var(--mono); font-size: 12px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.g svg { width: 100%; height: 22px; display: block; }
+.ghead { display: grid; grid-template-columns: 78px 1fr 44px; gap: 8px; font-size: 11px; color: var(--muted); }
+.inset { position: absolute; right: max(14px, env(safe-area-inset-right, 0px)); bottom: 14px; width: 310px; height: 330px; background: var(--panel);
+  border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden; z-index: 3; }
+.inset #pI { position: absolute; left: 0; right: 0; top: 74px; bottom: 26px; }
+.ihead { position: absolute; left: 10px; right: 10px; top: 7px; font-size: 12px; line-height: 1.3; }
+.ihead b { font-family: var(--display); font-size: 14px; }
+.iseg { display: flex; gap: 4px; margin-top: 4px; pointer-events: auto; }
+.iseg button { font: inherit; font-size: 11px; padding: 2px 7px; border-radius: 5px; border: 1px solid var(--line); background: var(--chip); color: var(--fg); cursor: pointer; }
+.iseg button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--panel); font-weight: 600; }
+.ifoot { position: absolute; left: 10px; right: 10px; bottom: 6px; }
+.ifoot .bar { height: 7px; }
+@media (max-width: 1100px) { .inset { width: 220px; height: 230px; } }
+@media (max-width: 1100px) {
+  .app { grid-template-columns: 1fr; }
+  .left, .right { border: 0; border-bottom: 1px solid var(--line); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-height: none; }
+  .stage { min-height: 70vh; order: -1; }
+}
+</style>
+<div class="app">
+  <aside class="rail left">
+    <div class="group">
+      <h1>Adult PFC axes through development</h1>
+      <p class="sub">Adult FGW 2D models (20 000 steps, λ770): with spatial factors, or without factors with Poisson or negative-binomial counts. Areal-model axes; P0–7M sections encoded with each model's adult encoder, so every age is in that model's coordinates. Axis numbers and signs differ between models.</p>
+    </div>
+    <div class="group"><span class="label">Model</span><div class="seg" id="model"></div></div>
+    <div class="group"><span class="label">Axis</span><div class="seg" id="axis"></div></div>
+    <div class="group"><span class="label">Age</span><div class="seg" id="age"></div>
+      <button class="play" id="play" type="button">Play P0 → adult</button></div>
+    <label class="check"><input type="checkbox" id="centre" checked> Centre each age on its own mean</label>
+    <label class="check"><input type="checkbox" id="own"> Colour scale of the selected age</label>
+    <label class="check"><input type="checkbox" id="adultArea"> Adults by area too (as P0–7M)</label>
+    <p class="note">Default: each age centred on the mean of its four areas, one colour scale for all ages, so a weak pattern looks pale. Untick centring to see the absolute shift between ages (young ages are shifted as a whole).</p>
+    <div class="group"><span class="label">View</span><div class="seg" id="view"></div></div>
+    <label class="check"><input type="checkbox" id="labels" checked> Region names</label>
+    <div class="reading">
+      <div class="name" id="rname"></div>
+      <div class="sub" id="rwhat"></div>
+      <div class="bar"></div>
+      <div class="ticks"><span id="tlo"></span><span>0</span><span id="thi"></span></div>
+    </div>
+    <div class="group trend"><span class="label">Variance explained by the axis, by age</span><div id="trend"></div><p class="note">Share of each age&#8217;s variance (bins minus their layer mean) along the adult axis. Blue: selected axis; grey: the other four (numbers at the right).</p></div>
+    <p class="note">Region value: mean over its cortical columns of (z − adult layer mean) · adult layer loading. Adults: per atlas region. P0–7M: per area (mPFC, oPFC, vlPFC, dlPFC), every region of an area shows the area value. Grey: no data; premotor regions (A6, A8aV, ProM) are grey at P0–7M because the developmental PFC sections do not contain them. Colour scale: largest area value of the ages shown (adult single regions can saturate). Meshes: Brain/MINDS BMA 2.0 (CC BY 4.0), right hemisphere.</p>
+  </aside>
+  <main class="stage"><div class="loading" id="loading">Loading the brain…</div><div id="plot"></div><div class="agebadge" id="badge"></div>
+    <div class="inset" aria-label="Closest atlas frontal PC"><div class="ihead"><b id="itl"></b><br><span class="sub" id="isl"></span><div class="iseg" id="itop"></div></div><div id="pI"></div><div class="ifoot"><div class="bar"></div><div class="ticks"><span id="ilo"></span><span>atlas, adult</span><span id="ihi"></span></div></div></div></main>
+  <aside class="rail right">
+    <div class="group"><span class="label">Genes of this axis</span>
+      <p class="sub">Top 30 genes at each end (correlation with the axis over adult pseudobulks). Line: mean z of the gene per sample, by age P0 → adult; dot = selected age. ρ: Spearman with age over the 9 developmental samples.</p></div>
+    <div class="ghead"><span>gene</span><span>P0 · P32 · 3M · 7M · adult</span><span style="text-align:right">ρ age</span></div>
+    <div class="genes" id="genes"></div>
+  </aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.35.0/plotly.min.js"></script>
+<script type="application/json" id="data">__DATA__</script>
+<script>
+(() => {
+  if (!window.Plotly) { document.getElementById('loading').textContent = 'The 3D library did not load. Reload the page.'; return; }
+  const D = JSON.parse(document.getElementById('data').textContent);
+  const REG = Object.keys(D.regions), AGES = D.ages;
+  const MD = () => D.models[st.m];
+  const VIEWS = { Lateral: {x: 2.1, y: 0.35, z: 0.45}, Medial: {x: -2.1, y: 0.35, z: 0.45}, Ventral: {x: 0.3, y: 0.4, z: -2.2}, Frontal: {x: 0.6, y: 2.1, z: 0.4}, Dorsal: {x: 0.2, y: 0.3, z: 2.2} };
+  const st = { m: D.model_order[0], k: 0, age: 'adult', centre: true, own: false, adultArea: false, view: 'Lateral', labels: true };
+  const AR4 = ['mPFC', 'oPFC', 'vlPFC', 'dlPFC'];
+  const PREM = new Set(['A8aV', 'A6DR', 'A6Va', 'A6Vb', 'ProM']);   // premotor: in the adult series, not in the P0-7M PFC sections
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const hex = h => { h = h.replace('#', ''); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); };
+  const mix = (a, b, t) => a.map((x, i) => Math.round(x + (b[i] - x) * t));
+  const rgb = c => `rgb(${c[0]},${c[1]},${c[2]})`;
+  const colour = (v, lim) => { const t = Math.max(-1, Math.min(1, v / lim)); return rgb(t < 0 ? mix(hex(css('--mid')), hex(css('--lo')), -t) : mix(hex(css('--mid')), hex(css('--hi')), t)); };
+  function buttons(id, items, key, cb) {
+    const el = document.getElementById(id); el.innerHTML = '';
+    items.forEach(([val, txt]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = txt; b.id = `${id}-${String(val).replace(/\W/g, '')}`;
+      b.setAttribute('aria-pressed', String(st[key] === val)); b.onclick = () => { st[key] = val; sync(id, key); cb(); }; el.appendChild(b); });
+  }
+  const sync = (id, key) => [...document.getElementById(id).children].forEach((c, i) => c.setAttribute('aria-pressed', String(c.id === `${id}-${String(st[key]).replace(/\W/g, '')}`)));
+  buttons('model', D.model_order.map(m => [m, D.models[m].label]), 'm', () => { buttons('axis', MD().axes.map((a, i) => [i, `${a.k}`]), 'k', () => { st.ti = 0; paint(); }); paint(); });
+  buttons('axis', MD().axes.map((a, i) => [i, `${a.k}`]), 'k', () => { st.ti = 0; paint(); });
+  buttons('age', AGES.map(a => [a, a]), 'age', paint);
+  buttons('view', Object.keys(VIEWS).map(v => [v, v]), 'view', () => { Plotly.relayout('plot', { 'scene.camera.eye': VIEWS[st.view] }); if (AREG.length) Plotly.relayout('pI', { 'scene.camera.eye': VIEWS[st.view] }); });
+  const traces = [], sh = D.shell;
+  traces.push({ type: 'mesh3d', x: sh.x, y: sh.y, z: sh.z, i: sh.i, j: sh.j, k: sh.k, color: css('--none'), opacity: 0.13, hoverinfo: 'skip', lighting: { ambient: 0.7, diffuse: 0.5, specular: 0.05 } });
+  REG.forEach(r => { const m = D.regions[r];
+    traces.push({ type: 'mesh3d', x: m.x, y: m.y, z: m.z, i: m.i, j: m.j, k: m.k, color: css('--none'), opacity: 1, name: r,
+      lighting: { ambient: 0.55, diffuse: 0.75, specular: 0.25, roughness: 0.6, fresnel: 0.1 }, lightposition: { x: 100, y: 200, z: 300 },
+      hovertemplate: `<b>${r}</b> · ${D.area[r] || ''}<br>%{text}<extra></extra>`, text: Array(m.x.length).fill('') }); });
+  traces.push({ type: 'scatter3d', mode: 'text', x: REG.map(r => D.regions[r].centroid[0] + 1.2), y: REG.map(r => D.regions[r].centroid[1]), z: REG.map(r => D.regions[r].centroid[2]),
+    text: REG, textfont: { family: 'IBM Plex Sans, Arial', size: 11, color: css('--fg') }, hoverinfo: 'skip' });
+  const AX = 6, AZ = -11.5;
+  traces.push({ type: 'scatter3d', mode: 'lines', x: [AX, AX], y: [-14, 12.4], z: [AZ, AZ], line: { color: css('--fg'), width: 7 }, hoverinfo: 'skip' });
+  traces.push({ type: 'cone', x: [AX], y: [14], z: [AZ], u: [0], v: [1], w: [0], anchor: 'tip', sizemode: 'absolute', sizeref: 2.2, showscale: false, colorscale: [[0, css('--fg')], [1, css('--fg')]], hoverinfo: 'skip' });
+  traces.push({ type: 'scatter3d', mode: 'text', x: [AX, AX, AX], y: [-15.5, 15.8, 0], z: [AZ, AZ, AZ - 1.6], text: ['P', 'A', 'posterior → anterior (mm)'], textfont: { size: [15, 15, 12], color: css('--fg') }, hoverinfo: 'skip' });
+  const axis = { visible: false, showgrid: false, zeroline: false, showbackground: false };
+  const layout = { margin: { l: 0, r: 0, t: 0, b: 0 }, paper_bgcolor: 'rgba(0,0,0,0)', showlegend: false,
+    scene: { xaxis: axis, yaxis: axis, zaxis: axis, aspectmode: 'data', camera: { eye: VIEWS.Lateral, up: { x: 0, y: 0, z: 1 } }, bgcolor: 'rgba(0,0,0,0)' } };
+  function areaMeans(v) { const o = {}; AR4.forEach(A => { const xs = Object.entries(v).filter(([r, x]) => D.area[r] === A && !PREM.has(r) && x != null).map(([, x]) => x); o[A] = xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null; }); return o; }
+  const vals = (age, k) => { let v = MD().values[age][k];
+    if (age !== 'adult') v = Object.fromEntries(Object.entries(v).map(([r, x]) => [r, PREM.has(r) ? null : x]));
+    if (age === 'adult' && st.adultArea) { const am = areaMeans(v); v = Object.fromEntries(Object.keys(v).map(r => [r, PREM.has(r) ? null : (am[D.area[r]] ?? null)])); }
+    if (!st.centre) return v; const am = areaMeans(v), f = AR4.map(A => am[A]).filter(x => x != null), m = f.reduce((a, b) => a + b, 0) / f.length;   // centre on the 4 area means, equal weights
+    return Object.fromEntries(Object.entries(v).map(([r, x]) => [r, x == null ? null : x - m])); };
+  function limit(k) {   // from the 4 area values of each age (as P0-7M are shown), so adult single regions do not set the scale; they may saturate
+    const all = (st.own ? [st.age] : AGES).flatMap(a => { const v = vals(a, k), am = areaMeans(v); return AR4.map(A => am[A]).filter(x => x != null).map(Math.abs); }).sort((a, b) => a - b);
+    return all[all.length - 1] || 1; }
+  function spark(z, i, cls) {
+    const lo = -2, hi = 2, W = 160, H = 22, x = j => 4 + j * (W - 8) / (z.length - 1), y = v => H - 3 - (Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo) * (H - 6);
+    const pts = z.map((v, j) => `${x(j).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}" stroke="${css('--line')}" stroke-width="1"/>` +
+      `<polyline points="${pts}" fill="none" stroke="${css(cls)}" stroke-width="1.8"/><circle cx="${x(i)}" cy="${y(z[i])}" r="3.2" fill="${css(cls)}"/></svg>`;
+  }
+  function trend() {   // variance share of each axis by age (layer-centred bins); selected axis bold, selected age marked
+    const W = 290, H = 160, P = 30, all = MD().axes.flatMap((_, k) => AGES.map(a => MD().share[k][a])), hi = Math.max(...all) * 1.12;
+    const x = i => P + i * (W - P - 14) / (AGES.length - 1), y = v => H - 22 - v / hi * (H - 36);
+    let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of variance of each axis by age">`;
+    [0, 0.05, 0.1, 0.15, 0.2].filter(v => v <= hi).forEach(v => { s += `<line x1="${P}" x2="${W - 14}" y1="${y(v)}" y2="${y(v)}" stroke="${css('--line')}"/>` +
+      `<text x="${P - 4}" y="${y(v) + 4}" text-anchor="end" font-size="10" fill="${css('--muted')}" font-family="IBM Plex Mono, monospace">${Math.round(v * 100)}%</text>`; });
+    MD().axes.forEach((ax, k) => { if (k === st.k) return;
+      s += `<polyline points="${AGES.map((a, i) => `${x(i)},${y(MD().share[k][a])}`).join(' ')}" fill="none" stroke="${css('--muted')}" stroke-width="1" opacity="0.5"/>` +
+        `<text x="${W - 11}" y="${y(MD().share[k][AGES[AGES.length - 1]]) + 3}" font-size="9" fill="${css('--muted')}" font-family="IBM Plex Sans, Arial">${k + 1}</text>`; });
+    const sel = AGES.map(a => MD().share[st.k][a]);
+    s += `<polyline points="${sel.map((v, i) => `${x(i)},${y(v)}`).join(' ')}" fill="none" stroke="${css('--accent')}" stroke-width="2.6"/>`;
+    AGES.forEach((a, i) => { const cur = a === st.age;
+      s += `<circle cx="${x(i)}" cy="${y(sel[i])}" r="${cur ? 5 : 3.2}" fill="${css('--accent')}"/>` +
+        (cur ? `<text x="${x(i)}" y="${y(sel[i]) - 9}" text-anchor="middle" font-size="11" font-weight="600" fill="${css('--accent')}" font-family="IBM Plex Mono, monospace">${(sel[i] * 100).toFixed(1)}%</text>` : '') +
+        `<text x="${x(i)}" y="${H - 6}" text-anchor="middle" font-size="11" fill="${cur ? css('--accent') : css('--muted')}" font-family="IBM Plex Sans, Arial">${a}</text>`; });
+    document.getElementById('trend').innerHTML = s + '</svg>';
+  }
+  function genes() {
+    const G = MD().genes[st.k], i = AGES.indexOf(st.age);
+    const row = (g, cls) => `<div class="g"><span class="nm" title="loading r ${g.r}">${g.g}</span>${spark(g.z, i, cls)}<span class="rho">${g.rho > 0 ? '+' : ''}${g.rho.toFixed(2)}</span></div>`;
+    document.getElementById('genes').innerHTML = `<h3 class="p">High end (+)</h3>` + G.positive.map(g => row(g, '--pos')).join('') + `<h3 class="n">Low end (−)</h3>` + G.negative.map(g => row(g, '--neg')).join('');
+  }
+  const AREG = Object.keys(D.aregions || {});
+  function insetTraces() {
+    const t = [], sh = D.shell;
+    t.push({ type: 'mesh3d', x: sh.x, y: sh.y, z: sh.z, i: sh.i, j: sh.j, k: sh.k, color: css('--none'), opacity: 0.12, hoverinfo: 'skip' });
+    AREG.forEach(r => { const m = D.aregions[r]; t.push({ type: 'mesh3d', x: m.x, y: m.y, z: m.z, i: m.i, j: m.j, k: m.k, color: css('--none'), opacity: 1,
+      lighting: { ambient: 0.6, diffuse: 0.7, specular: 0.2 }, hovertemplate: `<b>${r}</b><br>%{text}<extra></extra>`, text: Array(m.x.length).fill('') }); });
+    return t;
+  }
+  function paintInset() {
+    if (!AREG.length) return;
+    const ax0 = MD().axes[st.k], top = ax0.fpc_top || [[ax0.fpc, ax0.fpc_rho]], pick = top[Math.min(st.ti || 0, top.length - 1)];
+    const a = { fpc: pick[0], fpc_rho: pick[1] }, f = D.fpcs[a.fpc - 1], sg = a.fpc_rho < 0 ? -1 : 1, v = D.atlas[a.fpc];
+    document.getElementById('itop').innerHTML = top.map(([k, r], i) => `<button type="button" id="itop-${i}" aria-pressed="${i === (st.ti || 0)}">fPC${k} ${r >= 0 ? '+' : '−'}${Math.abs(r).toFixed(2)}</button>`).join('');
+    top.forEach((_, i) => { document.getElementById(`itop-${i}`).onclick = () => { st.ti = i; paintInset(); }; });
+    const vals = AREG.map(r => v[r] == null ? null : sg * v[r]), absv = vals.filter(x => x != null).map(Math.abs).sort((p, q) => p - q), L = absv[Math.floor(0.95 * (absv.length - 1))] || 1;
+    Plotly.restyle('pI', { color: vals.map(x => x == null ? css('--none') : colour(x, L)), text: AREG.map((r, i) => Array(D.aregions[r].x.length).fill(vals[i] == null ? 'no data' : `fPC${a.fpc}${sg < 0 ? ' (sign flipped)' : ''}: ${vals[i].toFixed(2)}`)) }, AREG.map((_, i) => i + 1));
+    document.getElementById('itl').textContent = `${['Closest', '2nd closest', '3rd closest'][st.ti || 0]} atlas PC: fPC${a.fpc} · ρ ${a.fpc_rho >= 0 ? '+' : '−'}${Math.abs(a.fpc_rho).toFixed(2)}`;
+    document.getElementById('isl').textContent = `${f.name} · ${(f.share * 100).toFixed(1)}% of frontal variance${sg < 0 ? ' · sign flipped to match' : ''}`;
+    document.getElementById('ilo').textContent = (-L).toFixed(1); document.getElementById('ihi').textContent = '+' + L.toFixed(1);
+  }
+  function paint() {
+    const a = MD().axes[st.k], v = vals(st.age, st.k), lim = limit(st.k);
+    const colors = REG.map(r => v[r] == null ? css('--none') : colour(v[r], lim));
+    const texts = REG.map(r => Array(D.regions[r].x.length).fill(v[r] == null ? 'no data at this age' : `${st.age}: score ${v[r].toFixed(2)}`));
+    Plotly.restyle('plot', { color: colors, text: texts }, REG.map((_, i) => i + 1));
+    Plotly.restyle('plot', { visible: st.labels, 'textfont.color': css('--fg') }, [REG.length + 1]);
+    document.getElementById('rname').textContent = `${MD().label} · axis ${a.k}: ${a.reading}`;
+    document.getElementById('rwhat').textContent = `${(a.share * 100).toFixed(0)}% of variance in adults · split-half ${a.splithalf.toFixed(2)} · ${st.own ? 'colour scale of this age' : 'one colour scale for all ages'}${st.centre ? ', each age centred' : ', absolute values'}`;
+    document.getElementById('tlo').textContent = (-lim).toFixed(2); document.getElementById('thi').textContent = '+' + lim.toFixed(2);
+    document.getElementById('badge').textContent = st.age; trend(); genes(); paintInset();
+  }
+  document.getElementById('labels').onchange = e => { st.labels = e.target.checked; paint(); };
+  document.getElementById('centre').onchange = e => { st.centre = e.target.checked; paint(); };
+  document.getElementById('own').onchange = e => { st.own = e.target.checked; paint(); };
+  document.getElementById('adultArea').onchange = e => { st.adultArea = e.target.checked; paint(); };
+  let timer = null;
+  document.getElementById('play').onclick = () => {
+    if (timer) { clearInterval(timer); timer = null; document.getElementById('play').textContent = 'Play P0 → adult'; return; }
+    let i = 0; st.age = AGES[0]; sync('age', 'age'); paint(); document.getElementById('play').textContent = 'Stop';
+    timer = setInterval(() => { i += 1; if (i >= AGES.length) { clearInterval(timer); timer = null; document.getElementById('play').textContent = 'Play P0 → adult'; return; }
+      st.age = AGES[i]; sync('age', 'age'); paint(); }, 1400);
+  };
+  Plotly.newPlot('plot', traces, layout, { displaylogo: false, responsive: true, modeBarButtonsToRemove: ['toImage'] })
+    .then(() => AREG.length ? Plotly.newPlot('pI', insetTraces(), { margin: { l: 0, r: 0, t: 0, b: 0 }, paper_bgcolor: 'rgba(0,0,0,0)', showlegend: false,
+        scene: { xaxis: axis, yaxis: axis, zaxis: axis, aspectmode: 'data', camera: { eye: VIEWS.Lateral, up: { x: 0, y: 0, z: 1 } }, bgcolor: 'rgba(0,0,0,0)' } },
+        { displayModeBar: false, responsive: true }) : null)
+    .then(() => { document.getElementById('loading').hidden = true; paint();
+      document.getElementById('plot').on('plotly_relayout', e => { if (AREG.length && e['scene.camera']) Plotly.relayout('pI', { 'scene.camera': e['scene.camera'] }); }); })
+    .catch(e => { document.getElementById('loading').textContent = '3D view failed: ' + e.message; });
+  try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', paint); } catch (e) {}
+  new MutationObserver(paint).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+})();
+</script>
