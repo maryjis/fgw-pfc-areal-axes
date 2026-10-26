@@ -1,0 +1,13 @@
+data,model,analysis,truth,adjR2_from_5_axes,null95,n_regions
+random,Expression,pseudobulk,mu1_SA,0.6087380894982686,0.21663412723266906,30
+random,Expression,pseudobulk,mu2_random,-0.003927151246083227,0.21663412723266906,30
+random,Expression,pseudobulk,mu3_random,-0.013251138631164228,0.21663412723266906,30
+random,Expression,column,mu1_SA,0.07382134604896595,0.22507291703825688,31
+random,Expression,column,mu2_random,-0.052058905112572385,0.22507291703825688,31
+random,Expression,column,mu3_random,-0.04385445499500129,0.22507291703825688,31
+three components,Expression,pseudobulk,mu1_SA,0.9954400223538903,0.20720509229223133,30
+three components,Expression,pseudobulk,mu2_random,0.9915599715837033,0.20720509229223133,30
+three components,Expression,pseudobulk,mu3_random,0.9870791409835988,0.20720509229223133,30
+three components,Expression,column,mu1_SA,0.9912244805412859,0.20519708210312,31
+three components,Expression,column,mu2_random,0.963321773966157,0.20519708210312,31
+three components,Expression,column,mu3_random,0.9313158342499859,0.20519708210312,31

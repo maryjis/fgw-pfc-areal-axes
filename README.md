@@ -157,9 +157,11 @@ feature decoder reconstructs these values. The raw counts of the model genes and
 likelihood: `log λ = log(β · softmax(factors)) + γ_section` (or the direct count decoder), rate = library × λ.
 
 ### 4.2 Choice of the smoothing radius
-`ottr.smoothed_pca.select`: the smallest radius whose layer transfer to a held-out section is within 0.005 of the best value on
-the curve 0–7 grid steps. Larger disks mix sections better but blur layers; the anchors need the layers. On the adult and P0
-benchmarks of the previous project this rule gives r = 1.5 for every tolerance 0.002–0.01.
+`ottr.smoothed_pca.select`: the smallest radius on the plateau of the layer transfer to a held-out section (within 2% of the
+best value on the curve 0–7 grid steps). Larger disks blur the layers and remove the section mixing; the anchors need the
+layers. The rule gives r = 1.5 on the adult5 and P0 benchmarks and on the series. On the series the layer-transfer maximum is
+at r = 2.5 (0.799 vs 0.789 at 1.5) — a flat plateau — while the cross-section neighbour share drops from 0.41 to 0.11, and
+r = 1.5 also has the best combined score (`results/tables/smoothing_radius_pfcserL.csv`).
 
 ---
 

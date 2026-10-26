@@ -96,7 +96,7 @@ def regions(tag, label, title, key):
             sh = lambda n: f' · split-half {t.loc[n].splithalf:.2f}' if an == 'pseudobulk' and pd.notna(t.loc[n].splithalf) else ''
             a.set_xlabel(f'{NAME[an]} 1 — {t.loc[1].var_share * 100:.0f}% · {t.loc[1].reading}{sh(1)}', fontsize=13, fontweight='bold')
             a.set_ylabel(f'{NAME[an]} {k + 1} — {t.loc[k + 1].var_share * 100:.0f}%\n{t.loc[k + 1].reading}{sh(k + 1)}', fontsize=13, fontweight='bold')
-        ax[0].set_title(f'{title} · {NAME[an]}s', fontsize=17, fontweight='bold', loc='left')
+        ax[0].set_title(f"{title} · {NAME[an].replace('axis', 'axe')}s", fontsize=17, fontweight='bold', loc='left')
         fig.legend(handles=[plt.Line2D([], [], marker='o', ls='', ms=11, color=cc, label=a_) for a_, cc in AREA_COL.items()], loc='outside lower center', ncol=7, fontsize=15, frameon=False)
         out.append(save(fig, f'regions_{key}_{an}', dpi=55))
     return out

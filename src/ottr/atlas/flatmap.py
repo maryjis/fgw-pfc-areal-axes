@@ -3,7 +3,9 @@
 assign()   python -m ottr.atlas.flatmap assign
            Place the series spots (bin100 grid) into the atlas segments (bin50 mask of T408-T428, paths.atlas_mask): a spot covers
            the 2 x 2 bin50 pixels (X/50 + dx, Y/50 + dy), dx, dy in {0, 1}, the global offset chosen by the best agreement of
-           our region label with the segment's atlas region; segment id = majority over the covered pixels.
+           our region label with the segment's atlas region; segment id = majority over the covered pixels (ties -> smallest id;
+           the original script broke ties by Python set order, which depends on the per-process string hash seed, so its
+           assignment of ~9% of the spots and its offset choice among equally good offsets were not reproducible).
            -> tables/atlas/spot2segment.csv
 project()  python -m ottr.atlas.flatmap project --tag <multi_axes tag> --models "FGW 2D" --emb <embedding> --spot_tag <spot_axes tag> --out <name>
            Per spot and model: areal axes 1-5 ((z - layer mean) . pb_G[m, layer], the pseudobulk axis evaluated on single spots),
@@ -36,7 +38,7 @@ def assign():
         for s, X, Y in zip(sec[W], xy[W, 0], xy[W, 1]):
             bx, by = int(X // 50) + off[0], int(Y // 50) + off[1]
             cc = [look.get((s, bx + a, by + b)) for a in (0, 1) for b in (0, 1)]; cc = [v for v in cc if v is not None]
-            ids.append(max(set(cc), key=cc.count) if cc else None)
+            ids.append(min(set(cc), key=lambda v: (-cc.count(v), v)) if cc else None)   # majority; ties -> smallest id (deterministic)
         return np.array(ids, dtype=object)
 
     best = None
@@ -51,12 +53,13 @@ def assign():
     D.to_csv(f'{OUT}/spot2segment.csv', index=False); print('saved', len(D), 'spots')
 
 
-def project(models, embs, axes_tag, spot_tag, out):
-    """models: labels inside the multi_axes run axes_tag; embs: {label: embedding}; spot_tag: tag of the spot_axes run."""
+def project(models, embs, axes_tag, spot_tag, out, s2s=None):
+    """models: labels inside the multi_axes run axes_tag; embs: {label: embedding}; spot_tag: tag of the spot_axes run;
+    s2s: spot -> segment table (default tables/atlas/spot2segment.csv)."""
     c = cfg(); ds = c.series['name']; OUTD = ensure(c.tables(f'atlas/{out}'))
     o = ad.read_h5ad(c.inputs(ds), backed='r'); obs = o.obs; dep = obs.depth.values.astype(float); sec = obs.slice.astype(str).values
     lay = obs.layer.astype(str).values; col = obs.col.values.astype(int)
-    A = pd.read_csv(c.tables('atlas/spot2segment.csv')).set_index('spot'); pos = pd.Series(np.arange(len(obs)), index=obs.index)
+    A = pd.read_csv(s2s or c.tables('atlas/spot2segment.csv')).set_index('spot'); pos = pd.Series(np.arange(len(obs)), index=obs.index)
     idx = pos[A.index].values; seg = A.segment.values
     S = pd.read_csv(f"{c.path('atlas_segments')}/segments_meta.csv", index_col=0); P = pd.read_csv(f"{c.path('atlas_segments')}/segments_pca.csv", index_col=0)
     T = pd.read_csv(c.tables(f'axes_{ds}{axes_tag}_comp.csv'))
@@ -109,8 +112,8 @@ def project(models, embs, axes_tag, spot_tag, out):
 
 if __name__ == '__main__':
     P_ = argparse.ArgumentParser(); P_.add_argument('what', choices=['assign', 'project']); P_.add_argument('--tag', default='')
-    P_.add_argument('--models', default='FGW 2D'); P_.add_argument('--embs', default=''); P_.add_argument('--spot_tag', default=''); P_.add_argument('--out', default='flatmap')
+    P_.add_argument('--models', default='FGW 2D'); P_.add_argument('--embs', default=''); P_.add_argument('--spot_tag', default=''); P_.add_argument('--out', default='flatmap'); P_.add_argument('--s2s', default=None)
     a = P_.parse_args()
     if a.what == 'assign': assign()
     else:
-        models = a.models.split(','); project(models, dict(zip(models, a.embs.split(','))), a.tag, a.spot_tag, a.out)
+        models = a.models.split(','); project(models, dict(zip(models, a.embs.split(','))), a.tag, a.spot_tag, a.out, a.s2s)

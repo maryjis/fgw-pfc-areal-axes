@@ -27,3 +27,17 @@ def test_mixing_layer_area(syn):
     tru = ctx.evaluate(np.load(cfg().emb(syn['ds'], 'truth')))
     assert tru['region: column area transfer, slice z-scored'] > 0.9            # planted regions -> areas transfer
     assert tru['SA: ridge on held-out slice (Spearman)'] > 0.9 and tru['SA: best |Spearman| PC1-5 vs SA index'] > 0.7
+
+
+def test_radius_rule():
+    """The plateau rule picks r = 1.5 on the adult5 / P0 smoothing curves of the previous project (if available)."""
+    import os
+    from ottr.smoothed_pca.select import choose
+    from ottr.config import cfg
+    f = cfg().ref('results', 'smoothing_curve_table.csv')
+    if not os.path.exists(f):
+        import pytest; pytest.skip('previous project not available')
+    d = pd.read_csv(f); c = d[d.method.str.startswith('curve_') & d.method.str.endswith('centred')].copy()
+    c['r'] = c.method.str.extract(r'curve_r([\d.]+)_')[0].astype(float); c['layer'] = c.layH
+    assert {ds: choose(g) for ds, g in c.groupby('ds')} == {'adult5': 1.5, 'p0': 1.5}
+    t = pd.DataFrame(dict(r=[0, 1.5, 2.5, 5], layer=[0.6, 0.79, 0.80, 0.70])); assert choose(t) == 1.5 and choose(t, tol=0.001) == 2.5

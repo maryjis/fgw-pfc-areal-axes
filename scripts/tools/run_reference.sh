@@ -20,9 +20,10 @@ $PY -m ottr.areal.spot_axes "FGW 2D:$P2" --tag _d2d20k
 $PY -m ottr.areal.spot_axes "FGW 2D:$N2" --tag _d2dnb20k
 $PY -m ottr.atlas.frontal_pca
 $PY -m ottr.atlas.flatmap assign
-$PY -m ottr.atlas.flatmap project --models "FGW 2D" --embs $F2 --spot_tag _k2_20k --out flatmaps20000
-$PY -m ottr.atlas.flatmap project --tag _d2d20k --models "FGW 2D" --embs $P2 --spot_tag _d2d20k --out flatmaps_d2d20k
-$PY -m ottr.atlas.flatmap project --tag _d2dnb20k --models "FGW 2D" --embs $N2 --spot_tag _d2dnb20k --out flatmaps_d2dnb20k
+S2S=$($PY -c "from ottr.config import cfg; print(cfg().ref('results', 'flatmap', 'spot2segment.csv'))")   # downstream checked on the stored assignment (see flatmap.assign)
+$PY -m ottr.atlas.flatmap project --models "FGW 2D" --embs $F2 --spot_tag _k2_20k --out flatmaps20000 --s2s $S2S
+$PY -m ottr.atlas.flatmap project --tag _d2d20k --models "FGW 2D" --embs $P2 --spot_tag _d2d20k --out flatmaps_d2d20k --s2s $S2S
+$PY -m ottr.atlas.flatmap project --tag _d2dnb20k --models "FGW 2D" --embs $N2 --spot_tag _d2dnb20k --out flatmaps_d2dnb20k --s2s $S2S
 $PY -c "from ottr.atlas.match import match; match([('factors','flatmaps20000','FGW 2D'),('no factors · Poisson','flatmaps_d2d20k','FGW 2D'),('no factors · NB','flatmaps_d2dnb20k','FGW 2D')])"
 $PY -c "
 from ottr.areal.development import AxesModel, project, conservation, age_areal, age_metrics

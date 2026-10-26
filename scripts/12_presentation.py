@@ -70,7 +70,7 @@ S('INSPIRE and what was changed',
 
 R = read(f"smoothing_radius_{c.series['name']}.csv")
 S('Smoothed PCA: choice of the radius', img('smoothing_radius', 'metrics along the smoothing radius') +
-  ('<p class="note">Rule: the smallest radius whose layer transfer is within 0.005 of the best on the curve. ' +
+  ('<p class="note">Rule: the smallest radius on the plateau of the layer transfer (within 2% of its best value). ' +
    (f'Chosen r = {R[R.chosen].r.iloc[0]:g} grid steps.' if R is not None else '') + '</p>'), 'Methods')
 
 S('Areal-axis model',

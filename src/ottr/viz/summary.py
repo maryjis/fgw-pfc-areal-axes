@@ -18,7 +18,7 @@ def ranking(rank_csv=None, name='metrics_rank'):
     for (i, j), v in np.ndenumerate(V.values): ax.text(j, i, f'{v:.3f}', ha='center', va='center', fontsize=12, color='white' if Z.values[i, j] > 0.65 else '#14213d')
     ax.set_xticks(range(len(cols))); ax.set_xticklabels([METRIC_LABEL.get(c, c) for c in cols], fontsize=12, rotation=15)
     ax.set_yticks(range(len(T))); ax.set_yticklabels([f'{int(p)}. {m}' for m, p in zip(T.index, T.place)], fontsize=13)
-    ax.set_title('Serial series T402–T428: metrics and rank (score = mean of min-max scaled mixing, region, area, layer, SA)', fontsize=14, fontweight='bold', loc='left')
+    ax.set_title('Serial series T402–T428: metrics and rank\nscore = mean of the min-max scaled mixing, region, area, layer and SA metrics', fontsize=14, fontweight='bold', loc='left')
     return save(fig, name)
 
 
