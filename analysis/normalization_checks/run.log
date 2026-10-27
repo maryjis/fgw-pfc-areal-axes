@@ -1,0 +1,72 @@
+pfcserLSimR pseudobulk meanlog done
+pfcserLSimR pseudobulk pooled done
+pfcserLSimR smoothed PCA done
+pfcserLSimK pseudobulk meanlog done
+pfcserLSimK pseudobulk pooled done
+pfcserLSimK smoothed PCA done
+           data             variant  comp  var_share  splithalf  SA_r_region  depth_r  r_mu1_SA  r_mu2_random  r_mu3_random                         reading
+0   pfcserLSimR  pseudobulk_meanlog     1      0.329      0.626        0.729    0.737     0.729         0.251         0.046                             NaN
+1   pfcserLSimR  pseudobulk_meanlog     2      0.193      0.568        0.100    0.577     0.100         0.130         0.046                             NaN
+2   pfcserLSimR  pseudobulk_meanlog     3      0.130      0.198        0.172    0.105     0.172         0.017         0.129                             NaN
+3   pfcserLSimR  pseudobulk_meanlog     4      0.050      0.474        0.276    0.046     0.276         0.215         0.312                             NaN
+4   pfcserLSimR  pseudobulk_meanlog     5      0.037      0.157        0.169    0.079     0.169         0.207         0.208                             NaN
+5   pfcserLSimR   pseudobulk_pooled     1      0.116      0.983        0.414    0.319     0.414         0.392         0.434                             NaN
+6   pfcserLSimR   pseudobulk_pooled     2      0.100      0.160        0.197    0.155     0.197         0.161         0.067                             NaN
+7   pfcserLSimR   pseudobulk_pooled     3      0.052      0.017        0.096    0.008     0.096         0.103         0.079                             NaN
+8   pfcserLSimR   pseudobulk_pooled     4      0.051      0.220        0.086    0.088     0.086         0.159         0.071                             NaN
+9   pfcserLSimR   pseudobulk_pooled     5      0.047      0.023        0.161    0.401     0.161         0.147         0.057                             NaN
+10  pfcserLSimR        disk_meanlog     1      0.253      0.546        0.777    0.752     0.777         0.224         0.149                         SA axis
+11  pfcserLSimR        disk_meanlog     2      0.179      0.069        0.229    0.433     0.229         0.017         0.053                   rostro-caudal
+12  pfcserLSimR        disk_meanlog     3      0.061      0.353        0.205    0.148     0.205         0.290         0.051  not reproducible (A46D ↔ A14C)
+13  pfcserLSimR        disk_meanlog     4      0.054      0.345        0.040    0.158     0.040         0.233         0.251   not reproducible (A8C ↔ ProM)
+14  pfcserLSimR        disk_meanlog     5      0.046      0.230        0.016    0.224     0.016         0.151         0.105  not reproducible (A14C ↔ A24c)
+15  pfcserLSimR         disk_pooled     1      0.167      0.303        0.489    0.352     0.489         0.121         0.069   not reproducible (A8C ↔ A14C)
+16  pfcserLSimR         disk_pooled     2      0.088      0.119        0.249    0.006     0.249         0.445         0.165   not reproducible (A46D ↔ A8C)
+17  pfcserLSimR         disk_pooled     3      0.076      0.204        0.051    0.274     0.051         0.081         0.336   not reproducible (A46D ↔ A45)
+18  pfcserLSimR         disk_pooled     4      0.074      0.204        0.422    0.671     0.422         0.071         0.131  not reproducible (A14R ↔ A47O)
+19  pfcserLSimR         disk_pooled     5      0.059      0.119        0.238    0.258     0.238         0.167         0.184  not reproducible (A14C ↔ A13a)
+20  pfcserLSimK  pseudobulk_meanlog     1      0.489      0.996        0.994    0.690     0.994         0.059         0.020                             NaN
+21  pfcserLSimK  pseudobulk_meanlog     2      0.257      0.991        0.056    0.133     0.056         0.988         0.159                             NaN
+22  pfcserLSimK  pseudobulk_meanlog     3      0.131      0.992        0.006    0.091     0.006         0.114         0.975                             NaN
+23  pfcserLSimK  pseudobulk_meanlog     4      0.061      0.857        0.053    0.072     0.053         0.024         0.113                             NaN
+24  pfcserLSimK  pseudobulk_meanlog     5      0.014      0.754        0.054    0.132     0.054         0.028         0.000                             NaN
+25  pfcserLSimK   pseudobulk_pooled     1      0.497      1.000        0.994    0.673     0.994         0.065         0.038                             NaN
+26  pfcserLSimK   pseudobulk_pooled     2      0.263      0.996        0.065    0.124     0.065         0.991         0.123                             NaN
+27  pfcserLSimK   pseudobulk_pooled     3      0.132      0.991        0.025    0.099     0.025         0.078         0.983                             NaN
+28  pfcserLSimK   pseudobulk_pooled     4      0.063      0.986        0.055    0.010     0.055         0.020         0.090                             NaN
+29  pfcserLSimK   pseudobulk_pooled     5      0.014      0.941        0.049    0.041     0.049         0.020         0.015                             NaN
+30  pfcserLSimK        disk_meanlog     1      0.375      0.998        0.989    0.666     0.989         0.029         0.066                         SA axis
+31  pfcserLSimK        disk_meanlog     2      0.231      0.996        0.008    0.043     0.008         0.882         0.294            areal axis A8C ↔ A45
+32  pfcserLSimK        disk_meanlog     3      0.156      0.993        0.026    0.046     0.026         0.445         0.543           areal axis A8C ↔ A8Av
+33  pfcserLSimK        disk_meanlog     4      0.073      0.988        0.048    0.032     0.048         0.059         0.358           areal axis A8b ↔ A6Va
+34  pfcserLSimK        disk_meanlog     5      0.055      0.986        0.096    0.240     0.096         0.106         0.564           areal axis A32 ↔ A24b
+35  pfcserLSimK         disk_pooled     1      0.410      0.998        0.493    0.333     0.493         0.427         0.390            areal axis A32 ↔ A8C
+36  pfcserLSimK         disk_pooled     2      0.210      0.995        0.826    0.571     0.826         0.279         0.254                         SA axis
+37  pfcserLSimK         disk_pooled     3      0.125      0.993        0.224    0.110     0.224         0.375         0.213          areal axis A6Va ↔ A8Av
+38  pfcserLSimK         disk_pooled     4      0.082      0.990        0.132    0.144     0.132         0.290         0.664          areal axis A24b ↔ A32V
+39  pfcserLSimK         disk_pooled     5      0.068      0.978        0.053    0.133     0.053         0.631         0.336           areal axis ProM ↔ A32
+           data             variant       truth  adjR2  null95
+0   pfcserLSimR  pseudobulk_meanlog      mu1_SA  0.609   0.217
+1   pfcserLSimR  pseudobulk_meanlog  mu2_random -0.004   0.217
+2   pfcserLSimR  pseudobulk_meanlog  mu3_random -0.013   0.217
+3   pfcserLSimR   pseudobulk_pooled      mu1_SA  0.098   0.185
+4   pfcserLSimR   pseudobulk_pooled  mu2_random  0.079   0.185
+5   pfcserLSimR   pseudobulk_pooled  mu3_random  0.042   0.185
+6   pfcserLSimR        disk_meanlog      mu1_SA  0.638   0.266
+7   pfcserLSimR        disk_meanlog  mu2_random  0.048   0.266
+8   pfcserLSimR        disk_meanlog  mu3_random -0.085   0.266
+9   pfcserLSimR         disk_pooled      mu1_SA  0.442   0.251
+10  pfcserLSimR         disk_pooled  mu2_random  0.097   0.251
+11  pfcserLSimR         disk_pooled  mu3_random  0.028   0.251
+12  pfcserLSimK  pseudobulk_meanlog      mu1_SA  0.995   0.192
+13  pfcserLSimK  pseudobulk_meanlog  mu2_random  0.992   0.192
+14  pfcserLSimK  pseudobulk_meanlog  mu3_random  0.987   0.192
+15  pfcserLSimK   pseudobulk_pooled      mu1_SA  0.998   0.205
+16  pfcserLSimK   pseudobulk_pooled  mu2_random  0.993   0.205
+17  pfcserLSimK   pseudobulk_pooled  mu3_random  0.990   0.205
+18  pfcserLSimK        disk_meanlog      mu1_SA  0.989   0.224
+19  pfcserLSimK        disk_meanlog  mu2_random  0.988   0.224
+20  pfcserLSimK        disk_meanlog  mu3_random  0.796   0.224
+21  pfcserLSimK         disk_pooled      mu1_SA  0.996   0.243
+22  pfcserLSimK         disk_pooled  mu2_random  0.858   0.243
+23  pfcserLSimK         disk_pooled  mu3_random  0.777   0.243
