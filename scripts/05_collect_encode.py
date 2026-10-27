@@ -50,7 +50,7 @@ for key, _, _, _ in FGW2D:
                 gpu_run([py, '-m', 'ottr.inspire.train', '--slice_dir', c.run_input(dds), '--force_genes_file', genes, '--init_ckpt', ck, '--encode_only',
                          '--out', out, '--seed', '0'] + opts(key), os.path.join(ensure('logs'), f'encode_{key}_{dds}.log'))
             L = np.load(os.path.join(out, 'latent.npz')); assert (L['obs_names'] == ad.read_h5ad(c.inputs(dds), backed='r').obs_names.values).all()
-            np.save(c.emb(dds, dev_emb(key)), L['Z'].astype(np.float32)); print('encoded', key, dds, L['Z'].shape)
+            ensure(c.emb_dir(dds)); np.save(c.emb(dds, dev_emb(key)), L['Z'].astype(np.float32)); print('encoded', key, dds, L['Z'].shape)
     if not a.skip_recon:
         pre = os.path.join(ensure(os.path.join(c.work, 'recon')), key)
         if not os.path.exists(pre + '_features.npz'):

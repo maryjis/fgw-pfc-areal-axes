@@ -8,3 +8,5 @@ results/3d_model/*.html
 __pycache__/
 *.egg-info/
 .pytest_cache/
+results/tables/atlas/spot2segment.csv
+results/presentation/deck_standalone.html

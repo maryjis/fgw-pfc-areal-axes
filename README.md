@@ -198,10 +198,32 @@ pipeline): `work/` (inputs, embeddings, anchors, caches), `results/models/` (che
 
 ---
 
-## 7. Results
+## 7. Results (this run, series T402–T428, 20 000 steps)
 
-See `results/presentation/index.html` and `results/tables/`. Summary of this run: section 8 (filled by the last run).
+| place | model | mixing | region NMI in section | area transfer | layer transfer | SA | section NMI | score |
+|---|---|---|---|---|---|---|---|---|
+| 1 | FGW 2D · factors | 0.786 | 0.174 | 0.785 | 0.803 | 0.936 | 0.037 | 0.855 |
+| 2 | FGW 1D · factors | 0.666 | 0.189 | 0.708 | 0.797 | 0.936 | 0.107 | 0.786 |
+| 3 | FGW 2D · no factors · Poisson | 0.908 | 0.135 | 0.817 | 0.751 | 0.904 | 0.026 | 0.603 |
+| 4 | FGW 2D · no factors · NB | 0.928 | 0.140 | 0.832 | 0.735 | 0.916 | 0.026 | 0.602 |
+| 5 | INSPIRE (GAN) | 0.549 | 0.167 | 0.557 | 0.790 | 0.918 | 0.210 | 0.514 |
+| 6 | smoothed PCA | 0.425 | 0.184 | 0.593 | 0.789 | 0.677 | 0.266 | 0.367 |
+
+Areal axes of FGW 2D with factors: 1 SA (64%, split-half 0.99), 2 arch of axis 1 (17%), 3 OPAl ↔ A24b (7%), 4 rostro-caudal,
+5 A14R ↔ A13L; all five reproducible (split-half ≥ 0.81). Figures: `results/pictures`, deck: `results/presentation/index.html`,
+3D pages: `results/3d_model` (rebuild: `python scripts/10_figures.py 3d`).
 
 ## 8. Reproduction status
 
-(see `results/tables/reproduction_summary.csv`)
+* Level 1 (tests/test_reference.py, 27 tests): the new code reproduces the stored inputs, smoothed PCA, FGW specs, metrics,
+  axes, atlas and development tables exactly. One deliberate change: the atlas flat-map assignment of the original script broke
+  ties by Python's random set order (≈9% of spots, and the choice among four equally good grid offsets, were not
+  reproducible); ties now go to the smallest segment id, and the downstream projection is verified on the stored assignment.
+  k-means NMI within L3/L5 (not a ranking metric) varies in the 4th digit with OpenMP threads.
+* Training: identical to the previous training script (GPU test) and, in classic mode, to the original INSPIRE package.
+  The retrained NB and INSPIRE (GAN) models — trained from scratch in both projects — give the same metrics to 15 digits.
+* Level 2 (`scripts/11_compare_with_previous.py`, `results/tables/reproduction_summary.csv`): all reproducible areal axes,
+  column PCs 1–3 and atlas correspondences pass (|r| ≥ 0.95); metrics within ±0.02 for 5 of 6 models. FGW 1D (old model:
+  7 500 steps + continuation, new: one 20 000-step run) is just outside on two metrics: area transfer 0.683 → 0.708 (+0.025),
+  section NMI 0.086 → 0.107 (+0.022).
+* Tests: 40 passed (`bash scripts/tools/run_tests.sh`, report `results/tables/test_report.csv`).

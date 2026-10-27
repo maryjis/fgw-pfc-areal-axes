@@ -1,0 +1,22 @@
+check,model,sum,count,all_passed
+areal axis,fgw1d_factors,4,4,True
+areal axis,fgw2d_factors,5,5,True
+areal axis,fgw2d_nb,5,5,True
+areal axis,fgw2d_poisson,5,5,True
+areal axis,inspire_gan,3,3,True
+areal axis,smoothed_pca,3,3,True
+atlas,fgw2d_factors,5,5,True
+atlas,fgw2d_nb,5,5,True
+atlas,fgw2d_poisson,5,5,True
+column PC,fgw1d_factors,3,3,True
+column PC,fgw2d_factors,3,3,True
+column PC,fgw2d_nb,3,3,True
+column PC,fgw2d_poisson,3,3,True
+column PC,inspire_gan,3,3,True
+column PC,smoothed_pca,3,3,True
+metric,fgw1d_factors,16,18,False
+metric,fgw2d_factors,18,18,True
+metric,fgw2d_nb,18,18,True
+metric,fgw2d_poisson,18,18,True
+metric,inspire_gan,18,18,True
+metric,smoothed_pca,18,18,True
