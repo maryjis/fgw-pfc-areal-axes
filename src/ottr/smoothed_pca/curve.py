@@ -29,13 +29,14 @@ def lognorm(A):
     return L.tocsr().astype(np.float32)
 
 
-def curve(ds, radii=RADII, variants=('none', 'centred', 'harmony')):
+def curve(ds, radii=RADII, variants=('none', 'centred', 'harmony'), dim=32):
+    """dim: number of PCs; dim != 32 adds _d<dim> to the embedding name (curve_r<r>_d<dim>_<variant>)."""
     c = cfg(); E = ensure(c.emb_dir(ds)); A = ad.read_h5ad(c.inputs(ds)); L = lognorm(A)
     sl = A.obs.slice.astype(str).values; xy = np.asarray(A.obsm['spatial'], float); G = grid_positions(sl, xy); info = {}
     for r in radii:
         if r == 0: X = L.toarray(); nn = 1.0
         else: X, nn = disk_mean(lambda idx: L[idx].toarray(), L.shape[1], G, r, chunk=200)
-        P = PCA(32, random_state=0).fit_transform(X)
+        P = PCA(dim, random_state=0).fit_transform(X)
         out = {'none': P}
         if 'centred' in variants:
             C = P.copy()
@@ -46,8 +47,8 @@ def curve(ds, radii=RADII, variants=('none', 'centred', 'harmony')):
             H = np.asarray(harmonypy.run_harmony(P, pd.DataFrame({'slice': sl}), 'slice', random_state=0, verbose=False).Z_corr)
             out['harmony'] = H.T if H.shape[0] != A.n_obs else H
         for v in variants:
-            name = f'curve_r{r:g}_{v}__seed0'; np.save(f'{E}/{name}.npy', out[v].astype(np.float32))
-            json.dump(dict(kind='smoothing_curve', radius_steps=r, radius_um=r * 50, mean_spots_in_disk=nn, variant=v, dim=32), open(f'{E}/{name}.json', 'w'))
+            name = f'curve_r{r:g}' + ('' if dim == 32 else f'_d{dim}') + f'_{v}__seed0'; np.save(f'{E}/{name}.npy', out[v].astype(np.float32))
+            json.dump(dict(kind='smoothing_curve', radius_steps=r, radius_um=r * 50, mean_spots_in_disk=nn, variant=v, dim=dim), open(f'{E}/{name}.json', 'w'))
         info[r] = nn; print(ds, 'radius', r, 'mean spots in disk', round(nn, 1), flush=True)
     return info
 
@@ -64,7 +65,7 @@ def smoothed_pca_sd(ds, r=1.5):
 
 if __name__ == '__main__':
     P_ = argparse.ArgumentParser(); P_.add_argument('--ds', default=cfg().series['name']); P_.add_argument('--radii', default=None)
-    P_.add_argument('--variants', default='none,centred,harmony'); P_.add_argument('--sd', action='store_true', help='young-brain variant')
+    P_.add_argument('--variants', default='none,centred,harmony'); P_.add_argument('--sd', action='store_true', help='young-brain variant'); P_.add_argument('--dim', type=int, default=32)
     a = P_.parse_args()
     if a.sd: smoothed_pca_sd(a.ds)
-    else: curve(a.ds, [float(x) for x in a.radii.split(',')] if a.radii else RADII, tuple(a.variants.split(',')))
+    else: curve(a.ds, [float(x) for x in a.radii.split(',')] if a.radii else RADII, tuple(a.variants.split(',')), a.dim)
